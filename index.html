@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Ramadan Dashboard 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.3);
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass: rgba(15, 23, 42, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 600px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        .settings-icon {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .settings-icon:hover { color: var(--accent); transform: rotate(45deg); }
+
+        /* Enhanced Settings Modal */
+        #settings-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1e293b;
+            border: 1px solid var(--accent);
+            border-radius: 25px;
+            padding: 25px;
+            z-index: 100;
+            width: 90%;
+            max-width: 400px;
+            text-align: left;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8);
+        }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 1rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+        
+        .sound-list-container {
+            max-height: 250px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            margin: 15px 0;
+            padding: 5px;
+        }
+
+        /* Custom Scrollbar */
+        .sound-list-container::-webkit-scrollbar { width: 6px; }
+        .sound-list-container::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        .sound-option {
+            padding: 10px;
+            margin: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .sound-option:hover { background: var(--accent-glow); }
+        .sound-option.selected { border: 1px solid var(--accent); background: var(--accent-glow); }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-save { background: var(--accent); color: var(--primary); }
+
+        /* Main UI */
+        .location { font-size: 0.8rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+        .main-date { font-size: 2.2rem; font-weight: 700; }
+        .roza-counter { display: inline-block; margin: 20px 0; padding: 10px 30px; background: var(--card-bg); border-radius: 100px; border: 1px solid var(--accent); font-weight: 600; color: var(--accent); }
+        
+        
+        /* Card ko relative rakhein taaki background color peeche dikhe */
+.timer-card { 
+    position: relative; 
+    overflow: hidden; 
+    z-index: 1; 
+}
+
+/* Background processing bar style */
+.card-bg-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%; /* JS se control hoga */
+    z-index: -1; /* Text ke peeche rahega */
+    transition: width 1s linear;
+}
+
+/* Dono ke liye alag colors */
+#iftar-bg-bar { background: rgba(212, 175, 55, 0.2); } /* Golden glow */
+#sehri-bg-bar { background: rgba(52, 152, 219, 0.2); } /* Blue glow */
+
+        .timer-card { background: var(--card-bg); padding: 25px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 20px; }
+        .timer-label { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; }
+        .countdown { font-family: 'JetBrains Mono', monospace; font-size: 3rem; font-weight: 500; margin: 10px 0; }
+        .progress-wrapper { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #d4af37, #f1c40f); transition: width 1s linear; }
+        .footer-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; }
+        
+        
+        /* Card ko relative rakhein taaki background color peeche dikhe */
+.timer-card { 
+    position: relative; 
+    overflow: hidden; 
+    z-index: 1; 
+}
+
+/* Background processing bar style */
+.card-bg-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%; /* JS se control hoga */
+    z-index: -1; /* Text ke peeche rahega */
+    transition: width 1s linear;
+}
+
+/* Dono ke liye alag colors */
+#iftar-bg-bar { background: rgba(212, 175, 55, 0.2); } /* Golden glow */
+#sehri-bg-bar { background: rgba(52, 152, 219, 0.2); } /* Blue glow */
+
+/* Card ko relative rakhein taaki background color peeche dikhe */
+.timer-card { 
+    position: relative; 
+    overflow: hidden; 
+    z-index: 1; 
+}
+
+/* Background processing bar style */
+.card-bg-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%; /* JS se control hoga */
+    z-index: -1; /* Text ke peeche rahega */
+    transition: width 1s linear;
+}
+
+/* Dono ke liye alag colors */
+#iftar-bg-bar { background: rgba(212, 175, 55, 0.2); } /* Golden glow */
+#sehri-bg-bar { background: rgba(52, 152, 219, 0.2); } /* Blue glow */
+
+
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
+
+    <div id="settings-modal">
+        <div class="modal-header">
+            <div class="modal-title">Sound Settings</div>
+            <input type="checkbox" id="sound-toggle" onchange="saveSettings()">
+        </div>
+        <p style="font-size: 0.7rem; color: var(--text-dim);">Enable master sound and select from 100+ tones below:</p>
+        
+        <div class="sound-list-container" id="sound-list">
+            </div>
+
+        <button class="btn-action btn-save" onclick="toggleSettings()">Save Preferences</button>
+    </div>
+
+    <div class="header">
+        <div class="location">Muscat, Oman</div>
+        <div id="display-day" class="main-date">Loading...</div>
+        <div class="roza-counter">RAMADAN DAY <span id="roza-num">--</span></div>
+    </div>
+<div class="timer-grid">
+    <div class="timer-card">
+        <div id="iftar-bg-bar" class="card-bg-progress"></div> 
+        
+        <div class="timer-label"><span>Until Iftar</span> <span id="iftar-pct">0%</span></div>
+        <div id="iftar-clock" class="countdown">00:00:00</div>
+        <div class="progress-wrapper"><div id="iftar-progress" class="progress-bar"></div></div>
+    </div>
+    
+    <div class="timer-card">
+        <div id="sehri-bg-bar" class="card-bg-progress"></div>
+
+        <div class="timer-label"><span>Until Sehri</span> <span id="sehri-pct">0%</span></div>
+        <div id="sehri-clock" class="countdown">00:00:00</div>
+        <div class="progress-wrapper"><div id="sehri-progress" class="progress-bar" style="background: #3498db;"></div></div>
+    </div>
+</div>
+
+
+    <div class="footer-stats">
+        <div class="stat-box"><span>SEHRI ENDS</span><br><strong id="sehri-val">--:--</strong></div>
+        <div class="stat-box"><span>IFTAR STARTS</span><br><strong id="iftar-val">--:--</strong></div>
+    </div>
+</div>
+
+<audio id="main-audio" preload="auto"></audio>
+
+<script>
+    // Data from Calendar Image
+    const ramadanCalendar = {
+        "2026-02-19": { roza: 1, s: "05:21", i: "18:09" }, "2026-02-20": { roza: 2, s: "05:20", i: "18:10" },
+        "2026-02-21": { roza: 3, s: "05:20", i: "18:11" }, "2026-02-22": { roza: 4, s: "05:19", i: "18:11" },
+        "2026-02-23": { roza: 5, s: "05:18", i: "18:12" }, "2026-02-24": { roza: 6, s: "05:18", i: "18:12" },
+        "2026-02-25": { roza: 7, s: "05:17", i: "18:13" }, "2026-02-26": { roza: 8, s: "05:16", i: "18:13" },
+        "2026-02-27": { roza: 9, s: "05:15", i: "18:14" }, "2026-02-28": { roza: 10, s: "05:15", i: "18:14" },
+        "2026-03-01": { roza: 11, s: "05:14", i: "18:15" }, "2026-03-02": { roza: 12, s: "05:13", i: "18:15" },
+        "2026-03-03": { roza: 13, s: "05:12", i: "18:16" }, "2026-03-04": { roza: 14, s: "05:11", i: "18:16" },
+        "2026-03-05": { roza: 15, s: "05:10", i: "18:16" }, "2026-03-06": { roza: 16, s: "05:09", i: "18:17" },
+        "2026-03-07": { roza: 17, s: "05:08", i: "18:17" }, "2026-03-08": { roza: 18, s: "05:08", i: "18:18" },
+        "2026-03-09": { roza: 19, s: "05:07", i: "18:18" }, "2026-03-10": { roza: 20, s: "05:06", i: "18:19" },
+        "2026-03-11": { roza: 21, s: "05:05", i: "18:19" }, "2026-03-12": { roza: 22, s: "05:04", i: "18:20" },
+        "2026-03-13": { roza: 23, s: "05:03", i: "18:20" }, "2026-03-14": { roza: 24, s: "05:02", i: "18:20" },
+        "2026-03-15": { roza: 25, s: "05:01", i: "18:21" }, "2026-03-16": { roza: 26, s: "05:00", i: "18:21" },
+        "2026-03-17": { roza: 27, s: "04:59", i: "18:22" }, "2026-03-18": { roza: 28, s: "04:58", i: "18:22" },
+        "2026-03-19": { roza: 29, s: "04:57", i: "18:22" }
+    };
+
+    let selectedSoundUrl = "";
+    let playedFlags = { iftar: false, sehri: false };
+
+    // Generate 100+ Sounds Programmatically
+    function initSoundLibrary() {
+        const container = document.getElementById('sound-list');
+        const categories = ["Chime", "Bell", "Digital", "Zen", "Soft", "Alert"];
+        
+        for (let i = 1; i <= 105; i++) {
+            const cat = categories[i % categories.length];
+            const div = document.createElement('div');
+            div.className = 'sound-option';
+            // Using a mix of professional preview URLs
+            const url = `https://assets.mixkit.co/active_storage/sfx/${2000 + i}/${2000 + i}-preview.mp3`;
+            div.innerHTML = `<span>${cat} Tone ${i}</span> 🔊`;
+            div.onclick = () => selectSound(url, div);
+            div.setAttribute('data-url', url);
+            container.appendChild(div);
+        }
+    }
+
+    function selectSound(url, element) {
+        selectedSoundUrl = url;
+        document.querySelectorAll('.sound-option').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        
+        const audio = document.getElementById('main-audio');
+        audio.src = url;
+        audio.play();
+        saveSettings();
+    }
+
+    function toggleSettings() {
+        const modal = document.getElementById('settings-modal');
+        modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveSettings() {
+        localStorage.setItem('ramadanSoundEnabled', document.getElementById('sound-toggle').checked);
+        localStorage.setItem('ramadanSoundUrl', selectedSoundUrl);
+    }
+
+    function loadSettings() {
+        const enabled = localStorage.getItem('ramadanSoundEnabled') === 'true';
+        selectedSoundUrl = localStorage.getItem('ramadanSoundUrl') || "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
+        
+        document.getElementById('sound-toggle').checked = enabled;
+        document.getElementById('main-audio').src = selectedSoundUrl;
+        
+        // Highlight selected in list
+        setTimeout(() => {
+            const target = Array.from(document.querySelectorAll('.sound-option')).find(el => el.getAttribute('data-url') === selectedSoundUrl);
+            if(target) target.classList.add('selected');
+        }, 500);
+    }
+function update() {
+    const now = new Date();
+    const dateKey = now.toISOString().split('T')[0];
+    const dayData = ramadanCalendar[dateKey];
+    if (!dayData) return;
+
+    // UI Updates
+    document.getElementById('display-day').innerText = now.toLocaleDateString('en-US', { weekday: 'long' });
+    document.getElementById('roza-num').innerText = dayData.roza;
+    document.getElementById('sehri-val').innerText = dayData.s + " AM";
+    
+    const iftarParts = dayData.i.split(':');
+    const iftarDisplay = (parseInt(iftarParts[0]) - 12) + ":" + iftarParts[1];
+    document.getElementById('iftar-val').innerText = iftarDisplay + " PM";
+
+    const sehriTime = new Date(now.toDateString() + ' ' + dayData.s);
+    const iftarTime = new Date(now.toDateString() + ' ' + dayData.i);
+
+    // --- Iftar Progress Logic ---
+    const diffI = iftarTime - now;
+    if (diffI > 0) {
+        const totalIftarWindow = iftarTime - sehriTime;
+        const elapsedIftar = now - sehriTime;
+        let pctI = Math.max(0, Math.min(100, (elapsedIftar / totalIftarWindow) * 100));
+        
+        document.getElementById('iftar-progress').style.width = pctI + "%";
+        // BACKGROUND BAR UPDATE
+        document.getElementById('iftar-bg-bar').style.width = pctI + "%"; 
+        
+        document.getElementById('iftar-pct').innerText = Math.floor(pctI) + "%";
+        document.getElementById('iftar-clock').innerText = formatTime(diffI);
+    } else {
+        document.getElementById('iftar-progress').style.width = "100%";
+        document.getElementById('iftar-bg-bar').style.width = "100%";
+        document.getElementById('iftar-pct').innerText = "100%";
+        document.getElementById('iftar-clock').innerText = "00:00:00";
+    }
+
+    // --- Sehri Progress Logic ---
+    const tomorrow = new Date(now); 
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowKey = tomorrow.toISOString().split('T')[0];
+    const nextData = ramadanCalendar[tomorrowKey];
+    
+    if (nextData) {
+        const nextSehri = new Date(tomorrow.toDateString() + ' ' + nextData.s);
+        const diffS = nextSehri - now;
+        
+        if (now > iftarTime) {
+            const totalSehriWindow = nextSehri - iftarTime;
+            const elapsedSehri = now - iftarTime;
+            let pctS = Math.max(0, Math.min(100, (elapsedSehri / totalSehriWindow) * 100));
+            
+            document.getElementById('sehri-progress').style.width = pctS + "%";
+            // BACKGROUND BAR UPDATE
+            document.getElementById('sehri-bg-bar').style.width = pctS + "%"; 
+            
+            document.getElementById('sehri-pct').innerText = Math.floor(pctS) + "%";
+        } else {
+            document.getElementById('sehri-progress').style.width = "0%";
+            document.getElementById('sehri-bg-bar').style.width = "0%";
+            document.getElementById('sehri-pct').innerText = "0%";
+        }
+        document.getElementById('sehri-clock').innerText = formatTime(diffS);
+    }
+}
+
+
+
+    function formatTime(ms) {
+        if (ms <= 0) return "00:00:00";
+        const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
+        return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    window.onload = () => { initSoundLibrary(); loadSettings(); };
+    setInterval(update, 1000);
+</script>
+</body>
+</html>
